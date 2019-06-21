@@ -2,7 +2,7 @@
   <div class="editor" v-show="!show">
     <h2>Edit your Text:</h2>
     <form>
-      <label>Username:</label>
+      <label>Username1:</label>
       <input v-model="info.username" required>
       <label>Text:</label>
       <textarea v-model="info.text"></textarea>
@@ -27,20 +27,22 @@ export default {
   data() {
     return {
       info: {
-        username: "",
-        text: "",
-        language: ""
+        username: null,
+        text: null,
+        language: null
       },
       languages: ["python", "c++", "java", "javascript", "text"]
     };
   },
   methods: {
     post: function() {
+      var self = this
+      console.log(this.info.text);
       this.$http
-        .post("http://127.0.0.1:8000/notes/", {
-          notes: this.info.text,
-          username: this.info.username,
-          language: this.info.language
+        .post("http://localhost:8000/notes/", {
+          notes: self.info.text,
+          username: self.info.username,
+          language: self.info.language
         })
         .then(function(data) {
           console.log(data);
