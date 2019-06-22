@@ -10,7 +10,7 @@
       <select v-model="info.language">
         <option v-for="(option,index) in languages" v-bind:key="index">{{ option }}</option>
       </select>
-      <button v-on:click="post">Save Text</button>
+      <button v-on:click.prevent="post">Save Text</button>
     </form>
   </div>
 </template>
@@ -22,15 +22,13 @@ export default {
   name: "app",
   props: ["index", "item", "see"],
   watch: {
-    // This would be called anytime the value of title changes
     item(newValue, oldValue) {
-      // you can do anything here with the new value or old/previous value
       this.info.username = newValue.username;
       this.info.text = newValue.notes;
       this.info.language = newValue.language;
     },
     index(newValue, oldValue) {
-      this.Index = newValue;
+      this.Index = newValue + 1;
     }
   },
   components: {},
@@ -42,14 +40,13 @@ export default {
         language: this.item.language
       },
       languages: ["python", "c++", "java", "javascript", "text"],
-      Index: this.index
+      Index: this.index + 1
     };
   },
   methods: {
     post: function() {
       var self = this;
       var url = "http://localhost:8000/notes/" + self.Index + "/";
-
       const requestBody = {
         username: self.info.username,
         language: self.info.language,
@@ -61,25 +58,14 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded"
         }
       };
-      // this.$http
-      //   .put(url, {
-      //     username: self.username,
-      //     language: self.language,
-      //     notes: self.text
-      //   })
-      //   .then(function(data) {
-      //     console.log(data);
-      //   });
-
-      console.log(requestBody);
       axios
-        .put(url, requestBody,  { headers: { 'Content-Type': 'application/json' } })
-        .then(result => {
-          // Do somthing
+        .put(url, requestBody, {
+          headers: { "Content-Type": "application/json" }
         })
-        .catch(err => {
-          // Do somthing
-        });
+        .then(result => {
+          window.location.href = "http://localhost:8080/";
+        })
+        .catch(err => {});
     }
   }
 };

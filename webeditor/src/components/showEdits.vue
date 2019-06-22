@@ -1,20 +1,20 @@
 <template>
   <div v-on:update="show=!show">
-    <div v-show="show">
-      <div v-show="see">
+    <div v-show="!see">
+      <div v-show="show">
         <button v-on:click="show=!show">Add a new text:</button>
         <h2>These are the texts:</h2>
+        <ul>
+          <li v-for="(edit, id) in edits" v-bind:key="id">
+            <label>{{ edit.username }}</label>
+            <p>{{ edit.notes }}</p>
+            <span>{{ edit.language }}</span>
+            <button v-on:click.prevent="transfer(edit,id)">Edit</button>
+          </li>
+        </ul>
       </div>
-      <ul>
-        <li v-for="(edit, id) in edits" v-bind:key="id">
-          <label>{{ edit.username }}</label>
-          <p>{{ edit.notes }}</p>
-          <span>{{ edit.language }}</span>
-          <button v-on:click.prevent="transfer(edit,id)">Edit</button>
-        </li>
-      </ul>
+      <editor v-bind:show="show"></editor>
     </div>
-    <editor v-bind:show="show"></editor>
     <updater v-bind:see="see" v-bind:index="this.passIndex" v-bind:item="this.pass"></updater>
   </div>
 </template>
@@ -32,14 +32,13 @@ export default {
     return {
       edits: [],
       show: true,
-      see: true,
+      see: false,
       pass: {},
       passIndex: undefined
     };
   },
   created() {
     this.$http.get("http://127.0.0.1:8000/notes/").then(function(data) {
-      console.log(data);
       this.edits = data.body;
     });
   },
@@ -47,6 +46,7 @@ export default {
     transfer: function(obj, index) {
       this.pass = obj;
       this.passIndex = index;
+      this.see = true;
     }
   }
 };
