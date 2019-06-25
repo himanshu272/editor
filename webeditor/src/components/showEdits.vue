@@ -1,33 +1,30 @@
 <template>
-  <div v-on:update="show=!show">
-    <div v-show="!see">
-      <div v-show="show">
-        <button v-on:click="show=!show">Add a new text:</button>
-        <h2>These are the texts:</h2>
-        <ul>
-          <li v-for="(edit, id) in edits" v-bind:key="id">
-            <label>{{ edit.username }}</label>
-            <p>{{ edit.notes }}</p>
-            <span>{{ edit.language }}</span>
-            <button v-on:click.prevent="transfer(edit,id)">Edit</button>
+  <div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <router-link to="/add/">New</router-link>
+          </li>
+          <li class="nav-item active">
+            <router-link to="/upload/">Upload</router-link>
           </li>
         </ul>
       </div>
-      <editor v-bind:show="show"></editor>
+    </nav>
+    <div class="jumbotron">
+      <h1>Hello there!</h1>
+      <p class="lead">This is a simple web editor! Login to save the files to your own database!</p>
+      <hr class="my-4">
+      <p>It works on Vue-js as a frontend JavaScript framework and django-rest-framework as a frontend.</p>
     </div>
-    <updater v-bind:see="see" v-bind:index="this.passIndex" v-bind:item="this.pass"></updater>
   </div>
 </template>
 
 <script>
-import updater from "./updater.vue";
-import editor from "./editor.vue";
 export default {
   name: "app",
-  components: {
-    editor: editor,
-    updater: updater
-  },
+  components: {},
   data() {
     return {
       edits: [],
@@ -37,11 +34,11 @@ export default {
       passIndex: undefined
     };
   },
-  created() {
+  /*created() {
     this.$http.get("http://127.0.0.1:8000/notes/").then(function(data) {
       this.edits = data.body;
     });
-  },
+  },*/
   methods: {
     transfer: function(obj, index) {
       this.pass = obj;
@@ -52,5 +49,9 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.navbar-nav > li {
+  padding-left: 15px;
+  padding-right: 15px;
+}
 </style>
