@@ -7,5 +7,4 @@ from .models import Notes
 
 class NoteviewSet(viewsets.ModelViewSet):
     queryset = Notes.objects.all()
-    permission_classes = [permissions.AllowAny]
     serializer_class = NoteSerializer
