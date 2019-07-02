@@ -4,13 +4,14 @@
     <label for="exampleInputEmail1">Your Text:</label>
     <textarea v-model="text" rows="30" cols="50"></textarea>
     <button class="btn btn-success" v-on:click="download">Download</button>
+    <button class="btn btn-primary" v-on:click="push" v-show="!see">Push to Database</button>
   </div>
 </template>
 
 <script>
 const axios = require("axios");
 import UploadButton from "vuetify-upload-button";
-
+import bus from "../bus";
 export default {
   name: "app",
   components: {
@@ -20,33 +21,10 @@ export default {
     return {
       text: "",
       type: "",
-      name: ""
+      see: true
     };
   },
   methods: {
-    post: function() {
-      var self = this;
-      var url = "http://localhost:8000/notes/" + self.Index + "/";
-      const requestBody = {
-        username: self.info.username,
-        language: self.info.language,
-        notes: self.info.text
-      };
-
-      const config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-      };
-      axios
-        .put(url, requestBody, {
-          headers: { "Content-Type": "application/json" }
-        })
-        .then(result => {
-          window.location.href = "http://localhost:8080/";
-        })
-        .catch(err => {});
-    },
     update: function(file) {
       const reader = new FileReader();
       this.name = file.name;
@@ -77,7 +55,39 @@ export default {
       element.click();
       document.body.removeChild(element);
       window.location.href = "http://localhost:8080/";
+    },
+    push: function() {
+      var vm = this;
+      var language = "";
+      if (vm.type === "text/x-c++src") language = "C++";
+      else if (vm.type === "text/x-python") language = "Python";
+      else if (vm.type === "application/x-javascript") language = "JavaScript";
+      else if (vm.type === "text/x-java") language = "Java";
+      else language = "Text";
+      const params = new URLSearchParams();
+      params.append("username", localStorage.getItem("Username"));
+      params.append("notes", vm.text);
+      params.append("language", language);
+      const config = {
+        headers: {
+          Authorization: "Token " + localStorage.getItem("Token"),
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      };
+      const axios = require("axios");
+      axios
+        .post("http://127.0.0.1:8000/text/notes/", params, config)
+        .then(function(response) {
+          alert("Saved to the database!");
+          vm.$router.push("/");
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     }
+  },
+  mounted() {
+    if (localStorage.getItem("Token") != null) this.see = false;
   }
 };
 </script>

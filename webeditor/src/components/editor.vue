@@ -17,7 +17,8 @@
         <option v-for="(option,index) in languages" v-bind:key="index">{{ option }}</option>
       </select>
     </div>
-    <button class="btn btn-primary" v-on:click="download">Add Text</button>
+    <button class="btn btn-primary" v-on:click="download">Download</button>
+    <button class="btn btn-success" v-on:click="push" v-show="!see">Add to Database</button>
   </div>
 </template>
 
@@ -34,24 +35,11 @@ export default {
       },
       languages: ["Python", "C++", "Java", "JavaScript", "Text"],
       filename: "",
-      type: ""
+      type: "",
+      see: true
     };
   },
   methods: {
-    post: function() {
-      var self = this;
-      console.log(this.info.text);
-      this.$http
-        .post("http://localhost:8000/notes/", {
-          notes: self.info.text,
-          username: self.info.username,
-          language: self.info.language
-        })
-        .then(function(data) {
-          console.log(data);
-        });
-      this.$emit("update");
-    },
     download: function() {
       var extension = "";
       if (this.type === "Python") extention = ".py";
@@ -72,7 +60,33 @@ export default {
       element.click();
       document.body.removeChild(element);
       window.location.href = "http://localhost:8080/";
+    },
+    push: function() {
+      var vm = this;
+      const params = new URLSearchParams();
+      params.append("username", localStorage.getItem("Username"));
+      params.append("notes", vm.info.text);
+      params.append("language", vm.type);
+      const config = {
+        headers: {
+          Authorization: "Token " + localStorage.getItem("Token"),
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      };
+      const axios = require("axios");
+      axios
+        .post("http://127.0.0.1:8000/text/notes/", params, config)
+        .then(function(response) {
+          alert("Saved to the database!");
+          vm.$router.push("/");
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     }
+  },
+  mounted() {
+    if (localStorage.getItem("Token") != null) this.see = false;
   }
 };
 </script>

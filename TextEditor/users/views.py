@@ -1,80 +1,59 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-# Create your views here.
+from rest_framework.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_200_OK
+)
+from django.contrib.auth.models import User
+from rest_framework import serializers
 
-import requests
 
-from .serializers import CreateUserSerializer
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def login(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+    if username is None or password is None:
+        return Response({'error': 'Please provide both username and password'},
+                        status=HTTP_400_BAD_REQUEST)
+    user = authenticate(username=username, password=password)
+    if not user:
+        return Response({'error': 'Invalid Credentials'},
+                        status=HTTP_404_NOT_FOUND)
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({'token': token.key},
+                    status=HTTP_200_OK)
 
-CLIENT_ID = 'DLHdCStXfnWAp9FN6v6pjMCn2e5efxfaLPrIe7oM'
-CLIENT_SECRET = 'nNAELSKaA1C2cOas2hEleQ4O7z1py1bUvHD3l0op6dom9DYTtqweOZ62SBPmQVEtviblszBn4F1tVmwGIurwFBVBqeLzyyb2kAIzhCAPSJSBTtMzYSwzOZY7nsxhoaxp'
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'password')
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
 def register(request):
     serializer = CreateUserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        r = requests.post('http://127.0.0.1:8000/o/token/',
-                          data={
-                              'grant_type': 'password',
-                              'username': request.data['username'],
-                              'password': request.data['password'],
-                              'client_id': CLIENT_ID,
-                              'client_secret': CLIENT_SECRET,
-                          },
-                          )
-        return Response(r.json())
-    return Response(serializer.errors)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def token(request):
-    r = requests.post(
-        'http:/127.0.0.1:8000/o/token/',
-        data={
-            'grant_type': 'password',
-            'username': request.data['username'],
-            'password': request.data['password'],
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-        },
-    )
-    return Response(r.json())
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def refresh_token(request):
-    r = requests.post(
-        'http:/127.0.0.1:8000/o/token/',
-        data={
-            'grant_type': 'refresh_token',
-            'refresh_token': request.data['refresh_token'],
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-        },
-    )
-    return Response(r.json())
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def revoke_token(request):
-    r = requests.post(
-        'http:/127.0.0.1:8000/o/revoke_token',
-        data={
-            'grant_type': 'revoke_token',
-            'refresh_token': request.data['token'],
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-        },
-    )
-    if r.status_code == requests.codes.ok:
-        return Response({'message': 'token revoked'}, r.status_code)
-
-    return Response(r.json(), r.status_code)
+        username = request.data.get("username")
+        password = request.data.get("password")
+        user = authenticate(username=username, password=password)
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key},
+                        status=HTTP_200_OK)

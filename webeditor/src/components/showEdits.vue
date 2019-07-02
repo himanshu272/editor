@@ -1,22 +1,10 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav">
-          <li class="nav-item active">
-            <router-link to="/add/">New</router-link>
-          </li>
-          <li class="nav-item active">
-            <router-link to="/upload/">Upload</router-link>
-          </li>
-        </ul>
-      </div>
-    </nav>
     <div class="jumbotron">
       <h1>Hello there!</h1>
       <p class="lead">This is a simple web editor! Login to save the files to your own database!</p>
       <hr class="my-4">
-      <p>It works on Vue-js as a frontend JavaScript framework and django-rest-framework as a frontend.</p>
+      <p>It works on Vue-js as a frontend JavaScript framework and django-rest-framework as a backend which provides a RESTful API.</p>
     </div>
   </div>
 </template>
@@ -34,11 +22,6 @@ export default {
       passIndex: undefined
     };
   },
-  /*created() {
-    this.$http.get("http://127.0.0.1:8000/notes/").then(function(data) {
-      this.edits = data.body;
-    });
-  },*/
   methods: {
     transfer: function(obj, index) {
       this.pass = obj;
