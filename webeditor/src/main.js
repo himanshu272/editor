@@ -9,6 +9,7 @@ import updater from "./components/updater.vue";
 import login from "./components/login.vue";
 import register from "./components/register.vue";
 import EventBus from "./bus";
+import uploads from "./components/uploads.vue";
 Vue.use(VueResource);
 Vue.use(UploadButton);
 Vue.use(VueRouter);
@@ -18,7 +19,8 @@ const routes = [
   { path: "/add/", component: editor },
   { path: "/upload/", component: updater },
   { path: "/login/", component: login },
-  { path: "/register/", component: register }
+  { path: "/register/", component: register },
+  { path: "/previous/", component: uploads }
 ];
 const router = new VueRouter({ routes, mode: "history" });
 new Vue({

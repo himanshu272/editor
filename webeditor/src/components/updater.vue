@@ -21,6 +21,7 @@ export default {
     return {
       text: "",
       type: "",
+      name: "",
       see: true
     };
   },
@@ -68,6 +69,7 @@ export default {
       params.append("username", localStorage.getItem("Username"));
       params.append("notes", vm.text);
       params.append("language", language);
+      params.append("filename",vm.name);
       const config = {
         headers: {
           Authorization: "Token " + localStorage.getItem("Token"),

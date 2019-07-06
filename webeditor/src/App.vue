@@ -9,6 +9,9 @@
           <li class="nav-item active">
             <router-link to="/upload/">Upload</router-link>
           </li>
+          <li class="nav-item active" v-show="!show">
+            <router-link to="/previous/">Your Files</router-link>
+          </li>
         </ul>
         <ul class="navbar-nav ml-auto">
           <li class="nav-item" v-show="show">

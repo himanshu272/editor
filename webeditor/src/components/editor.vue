@@ -5,7 +5,7 @@
     </h2>
     <div>
       <label>FileName:</label>
-      <input v-model="filename" required>
+      <input v-model="filename" required />
     </div>
     <div>
       <label>Text:</label>
@@ -67,6 +67,7 @@ export default {
       params.append("username", localStorage.getItem("Username"));
       params.append("notes", vm.info.text);
       params.append("language", vm.type);
+      params.append("filename", vm.filename);
       const config = {
         headers: {
           Authorization: "Token " + localStorage.getItem("Token"),
