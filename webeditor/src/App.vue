@@ -23,6 +23,12 @@
           <li class="nav-item">
             <button class="btn btn-danger" v-on:click="logout" v-show="!show">Log Out</button>
           </li>
+          <li class="nav-item">
+            <button
+              v-google-signin-button="clientId"
+              class="google-signin-button"
+            >Continue with Google</button>
+          </li>
         </ul>
       </div>
     </nav>
@@ -32,12 +38,18 @@
 
 <script>
 import bus from "./bus";
+import GoogleSignInButton from "vue-google-signin-button-directive";
 export default {
   name: "app",
+  directives: {
+    GoogleSignInButton
+  },
   components: {},
   data() {
     return {
-      show: true
+      show: true,
+      clientId:
+        "806142332461-jmaj11anan2s2p7asmjj73e0hl0duda8.apps.googleusercontent.com"
     };
   },
   methods: {
@@ -46,6 +58,19 @@ export default {
       localStorage.removeItem("Username");
       this.show = true;
       this.$router.push("/");
+    },
+    OnGoogleAuthSuccess(idToken) {
+      const axios = require("axios");
+      const params = new URLSearchParams();
+      params.append("access_token", idToken);
+      axios
+        .post("http://127.0.0.1:8000/social/google-oauth2/", params)
+        .then(function(response) {
+          console.log(response);
+        });
+    },
+    OnGoogleAuthFail(error) {
+      console.log(error);
     }
   },
   mounted() {

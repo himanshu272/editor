@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+from django.conf import settings
+from social_django.utils import psa
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -13,7 +15,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 
-@csrf_exempt
+'''@csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 def login(request):
@@ -56,4 +58,34 @@ def register(request):
         user = authenticate(username=username, password=password)
         token, _ = Token.objects.get_or_create(user=user)
         return Response({'token': token.key},
-                        status=HTTP_200_OK)
+                        status=HTTP_200_OK)'''
+
+
+class SocialSerializer(serializers.Serializer):
+    access_token = serializers.CharField(
+        allow_blank=False,
+        trim_whitespace=True,
+    )
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@psa()
+def exchange_token(request, backend):
+    serializer = SocialSerializer(data=request.data)
+    print(backend)
+    if serializer.is_valid(raise_exception=True):
+        user = request.backend.do_auth(
+            serializer.validated_data['access_token'])
+        print(user)
+        if user:
+            if user.is_active:
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({
+                    'token': token.key
+                })
+            else:
+                return Response({
+                    'errors': 'Authentication failed'
+                }, status=HTTP_400_BAD_REQUEST)
